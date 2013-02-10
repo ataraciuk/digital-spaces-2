@@ -12,6 +12,7 @@ public class Raycasting : MonoBehaviour {
 	public bool Deleting = false;
 	public GameObject newSound;
 	public GameObject destroySound;
+	private GameObject ToDel;
 
 	// Use this for initialization
 	void Start () {
@@ -52,6 +53,7 @@ public class Raycasting : MonoBehaviour {
 				if(children.Count() > 0) {
 					destroySound.audio.Play();
 					Deleting = true;
+					ToDel = Father.GetComponentsInChildren<Transform>().Where(x => x != Father).Last().gameObject;
 					iTween.ScaleTo( children.Last().gameObject, iTween.Hash(
 						"scale", Vector3.zero,
 						"time", scaleDownTime,
@@ -79,7 +81,7 @@ public class Raycasting : MonoBehaviour {
 	
 	void DidScaleDown() {
 		
-		Destroy( Father.GetComponentsInChildren<Transform>().Where(x => x != Father).Last().gameObject );
+		Destroy( ToDel );
 		Deleting = false;
 	}
 	
