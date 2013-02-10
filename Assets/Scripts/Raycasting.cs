@@ -6,10 +6,12 @@ public class Raycasting : MonoBehaviour {
 	
 	public Transform theSphere;
 	public Transform pillar;
-	public System.Collections.Generic.List<Transform> theNew = new System.Collections.Generic.List<Transform>();
+
 	public Transform Father;
 	public float scaleDownTime = 1.0f;
 	public bool Deleting = false;
+	public GameObject newSound;
+	public GameObject destroySound;
 
 	// Use this for initialization
 	void Start () {
@@ -34,20 +36,28 @@ public class Raycasting : MonoBehaviour {
 			theSphere.position = Vector3.Lerp( theSphere.position, hit.point + hit.normal * .75f, .075f );
 			
 			if(Input.GetMouseButtonDown(0)){
-				theNew.Add((Transform)Instantiate(pillar, hit.point, Quaternion.identity));
-				theNew.Last().parent = Father;
+				var theNew = (Transform)Instantiate(pillar, hit.point, Quaternion.identity);
+				theNew.parent = Father;
 			}
 			if(Input.GetMouseButton(0)){
-				theNew.Last().localScale+= Vector3.up * 0.1f;
+				var items = Father.GetComponentsInChildren<Transform>().Where(x => x != Father);
+				if(items.Count() > 0){
+					var last = items.Last();
+					last.localScale+= Vector3.up * 0.1f;
+					if(!newSound.audio.isPlaying) newSound.audio.Play();
+				}
 			}
-			if(Input.GetMouseButtonDown(1) && theNew.Count > 0 && !Deleting) {
-				var last = theNew.Last();
-				Deleting = true;
-				iTween.ScaleTo( last.gameObject, iTween.Hash(
-					"scale", Vector3.zero,
-					"time", scaleDownTime,
-					"oncomplete", "DidScaleDown",
-					"oncompletetarget", this.gameObject ) );
+			if(Input.GetMouseButtonDown(1) && !Deleting) {
+				var children = Father.GetComponentsInChildren<Transform>().Where(x => x != Father);
+				if(children.Count() > 0) {
+					destroySound.audio.Play();
+					Deleting = true;
+					iTween.ScaleTo( children.Last().gameObject, iTween.Hash(
+						"scale", Vector3.zero,
+						"time", scaleDownTime,
+						"oncomplete", "DidScaleDown",
+						"oncompletetarget", this.gameObject ) );
+				}
 			}
 
 				/*
@@ -69,8 +79,7 @@ public class Raycasting : MonoBehaviour {
 	
 	void DidScaleDown() {
 		
-		Destroy( theNew.Last().gameObject );
-		theNew.RemoveAt(theNew.Count - 1);
+		Destroy( Father.GetComponentsInChildren<Transform>().Where(x => x != Father).Last().gameObject );
 		Deleting = false;
 	}
 	
