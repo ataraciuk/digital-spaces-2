@@ -47,7 +47,7 @@ public class Raycasting : MonoBehaviour {
 					if(!newSound.audio.isPlaying) newSound.audio.Play();
 				}
 			}
-			if(Input.GetMouseButtonDown(1) && !Deleting) {
+			if(Input.GetKeyDown(KeyCode.R) && !Deleting) {
 				var children = Father.GetComponentsInChildren<Transform>().Where(x => x != Father);
 				if(children.Count() > 0) {
 					destroySound.audio.Play();
